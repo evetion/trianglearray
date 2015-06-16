@@ -1,0 +1,5 @@
+# triangle_array extension
+comment = 'Triangle Array prototype to store TINs'
+default_version = '0.1'
+module_pathname = '$libdir/triangle_array'
+relocatable = true
