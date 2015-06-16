@@ -113,7 +113,7 @@ float8* overocean(int pointid, int patchid) {
 
 	//elog(INFO,"Bonny?.");
 
-  	sprintf(sql, "SELECT (trianglexyz(%i,points)).* FROM multitin_l7_td WHERE id = %i",pointid,patchid);
+  	sprintf(sql, "SELECT (trianglexyz(%i,points)).* FROM triangle_array WHERE id = %i",pointid,patchid);
   	//elog(INFO,"Asking point %i in patch %i",pointid, patchid);
   	SPI_execute(sql, true, 1);
 	//elog(INFO,"Bonny?!.");
