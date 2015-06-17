@@ -29,13 +29,23 @@ typedef struct
 
 typedef struct
 {
-	int32 a, b, c, n1, n2, n3;
+	int32 a, b, c;
 } TTriangle;
+
+typedef struct
+{
+	int64 a, b, c;
+} TTriangleq;
 
 typedef struct {
   uint16_t patch;
   uint16_t point;
 } Link;
+
+typedef struct {
+  uint32_t patch;
+  uint32_t point;
+} Linkq;
 
 
 Datum trianglez_bytea(PG_FUNCTION_ARGS);
@@ -45,6 +55,7 @@ void* trianglez_to_geometry_wkb(float8 *points, TTriangle *triangle, size_t *wkb
 float8* overocean(int pointid, int patchid);
 uint32_t stitch(uint16_t patch_id, uint16_t point_id);
 Link* unstitch(uint32_t packed);
+Linkq* unstitch(uint64_t packed)
 char machine_endian(void);
 
 
@@ -64,6 +75,18 @@ Link* unstitch(uint32_t packed)
   ////elog(INFO,"Packed %i",packed);
   link->point = (packed >> 16);
   link->patch = (packed & 0xFFFF);
+  ////elog(INFO,"Unpacked %i %i",link->patch,link->point);
+  return link;
+}
+
+Linkq* unstitch(uint64_t packed)
+{
+  Link *link;
+  link = palloc(sizeof(Link));
+
+  ////elog(INFO,"Packed %i",packed);
+  link->point = (packed >> 32);
+  link->patch = (packed & 0xFFFFFFFF);
   ////elog(INFO,"Unpacked %i %i",link->patch,link->point);
   return link;
 }
@@ -178,6 +201,7 @@ Datum tinz_bytea(PG_FUNCTION_ARGS)
 	uint32_t numt = PG_GETARG_INT32(0);
 	float8 *points = (float8*) ( ( (uint8_t*) PG_GETARG_BYTEA_P(1) ) + 4);
 	TTriangle *triangles = (TTriangle*) ( ( (uint8_t*) PG_GETARG_BYTEA_P(2) ) + 4);
+	/* TTriangle *triangles = (TTriangle*) ( ( (uint8_t*) PG_GETARG_BYTEA_P(2) ) + 8); UINT64 version*/
 	int patch = PG_GETARG_INT32(3);
 	size_t size = 1 + 4 + 4 +(numt * 109); /* endian + type + numt + numt*size of TriangleZ */
 	uint8 *bytes;
@@ -239,6 +263,7 @@ Datum trianglez_bytea(PG_FUNCTION_ARGS)
 	int i = PG_GETARG_INT32(0);
 	float8 *points = (float8*) ( ( (uint8_t*) PG_GETARG_BYTEA_P(1) ) + 4);
 	TTriangle *triangles = (TTriangle*) ( ( (uint8_t*) PG_GETARG_BYTEA_P(2) ) + 4);
+	/* TTriangle *triangles = (TTriangle*) ( ( (uint8_t*) PG_GETARG_BYTEA_P(2) ) + 8); UINT64 version*/
 	int patch = PG_GETARG_INT32(3);
 	uint8 *bytes;
 	size_t bytes_size;
